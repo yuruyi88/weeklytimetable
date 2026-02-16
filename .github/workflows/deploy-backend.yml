@@ -1,0 +1,23 @@
+name: Deploy Backend to Railway
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Railway
+        uses: railway/cli@latest
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: backend
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
