@@ -11,14 +11,12 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "https://weeklytimetable-production.up.railway.app/api/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/dist/$1"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://weeklytimetable-production.up.railway.app/api/$1"
     }
   ]
 }
