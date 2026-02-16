@@ -23,25 +23,37 @@ async function apiRequest<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
   
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    // Handle case where detail might be an object
-    const errorMessage = typeof error.detail === 'string' 
-      ? error.detail 
-      : (error.detail ? JSON.stringify(error.detail) : `HTTP error! status: ${response.status}`);
-    throw new Error(errorMessage);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      let errorMessage = errorText;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = typeof errorJson.detail === 'string' 
+          ? errorJson.detail 
+          : (errorJson.detail ? JSON.stringify(errorJson.detail) : `HTTP error! status: ${response.status}`);
+      } catch {
+        errorMessage = errorText || `HTTP error! status: ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    if (response.status === 204) {
+      return undefined as T;
+    }
+    
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Cannot connect to server. Please check your internet connection or try again later.');
+    }
+    throw error;
   }
-  
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  
-  return response.json();
 }
 
 // Types
