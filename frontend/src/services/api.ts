@@ -1,6 +1,7 @@
 // API Base URL - empty for same-origin (Vite proxy in dev, or same domain in prod)
 // Set VITE_API_URL env var for production backend
-const API_BASE = import.meta.env.VITE_API_URL || '';
+// @ts-ignore - Vite env types
+const API_BASE = (import.meta as any).env?.VITE_API_URL || '';
 
 // Get auth token from localStorage
 const getToken = () => localStorage.getItem('timetable_token');
