@@ -22,6 +22,11 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
+      - name: Create env file
+        run: |
+          cd frontend
+          echo "VITE_API_URL=https://weeklytimetable-production.up.railway.app" > .env.local
+
       - name: Deploy to Vercel
         run: |
           cd frontend

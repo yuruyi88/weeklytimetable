@@ -10,7 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping backend health endpoint
-        run: |
-          # Replace with your Railway backend URL after first deploy
-          # curl https://your-app.up.railway.app/health || true
-          echo "Add your Railway URL here after first deployment"
+        run: curl https://weeklytimetable-production.up.railway.app/health || true
