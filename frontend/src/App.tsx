@@ -239,3 +239,4 @@ function App() {
 }
 
 export default App;
+// Auto-deploy test - Mon Feb 16 15:33:08 NZDT 2026
