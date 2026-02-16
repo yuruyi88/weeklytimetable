@@ -19,12 +19,23 @@ function App() {
   const [pinCallback, setPinCallback] = useState<(() => void) | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isPinSet, setIsPinSet] = useState(false);
+  const [title, setTitle] = useState('My Timetable');
 
-  // Load events on mount
+  // Load events and settings on mount
   useEffect(() => {
     loadEvents();
+    loadSettings();
     checkPinStatus();
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      const settings = await api.settings.get();
+      setTitle(settings.title || 'My Timetable');
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+    }
+  };
 
   const loadEvents = async () => {
     try {
@@ -131,7 +142,7 @@ function App() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800 leading-tight">
-                My Timetable
+                {title}
               </h1>
               <p className="text-sm text-gray-500 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-yellow-500" />
@@ -231,6 +242,7 @@ function App() {
               setPinMode('change');
               setShowPINModal(true);
             }}
+            onTitleChange={(newTitle) => setTitle(newTitle)}
           />
         )}
       </AnimatePresence>

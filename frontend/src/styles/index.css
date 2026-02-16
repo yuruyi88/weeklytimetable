@@ -85,6 +85,10 @@ body {
   .pin-input {
     @apply w-14 h-16 text-center text-2xl font-bold rounded-xl border-2 border-gray-300 focus:border-pink-400 focus:outline-none transition-all;
   }
+
+  .pin-input-single {
+    @apply w-full h-16 text-center text-2xl font-bold rounded-xl border-2 border-gray-300 focus:border-pink-400 focus:outline-none transition-all tracking-[0.5em];
+  }
 }
 
 /* Event card colors */

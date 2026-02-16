@@ -66,12 +66,14 @@ class SettingsBase(BaseModel):
     timezone: str = Field(default="Pacific/Auckland")
     notifications_enabled: bool = Field(default=False)
     theme: str = Field(default="default")
+    title: str = Field(default="My Timetable")
 
 
 class SettingsUpdate(BaseModel):
     timezone: Optional[str] = None
     notifications_enabled: Optional[bool] = None
     theme: Optional[str] = None
+    title: Optional[str] = None
 
 
 class Settings(SettingsBase):

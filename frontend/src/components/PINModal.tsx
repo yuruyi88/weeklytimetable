@@ -17,38 +17,12 @@ const PINModal: React.FC<PINModalProps> = ({ mode, onSuccess, onClose }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'input' | 'confirm'>('input');
-  
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  
-  const maxLength = 6;
-  
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
-    // Focus first input on mount
-    if (inputRefs.current[0]) {
-      inputRefs.current[0].focus();
-    }
+    inputRef.current?.focus();
   }, [step, mode]);
-  
-  const handleDigitInput = (index: number, value: string, targetPin: string, setTargetPin: (pin: string) => void) => {
-    if (value.length > 1) return;
-    
-    if (/^\d*$/.test(value)) {
-      const newPin = targetPin.slice(0, index) + value + targetPin.slice(index + 1);
-      setTargetPin(newPin);
-      setError('');
-      
-      // Move to next input
-      if (value && index < maxLength - 1) {
-        inputRefs.current[index + 1]?.focus();
-      }
-    }
-  };
-  
-  const handleKeyDown = (index: number, e: React.KeyboardEvent, targetPin: string) => {
-    if (e.key === 'Backspace' && !targetPin[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
   
   const handleSubmit = async () => {
     setError('');
@@ -146,28 +120,30 @@ const PINModal: React.FC<PINModalProps> = ({ mode, onSuccess, onClose }) => {
     return '';
   };
   
-  const renderPinInputs = (value: string, onChange: (val: string) => void, label?: string) => (
+  const handlePinInputChange = (value: string, setter: (val: string) => void) => {
+    const digits = value.replace(/\D/g, '').slice(0, 6);
+    setter(digits);
+    setError('');
+  };
+
+  const renderPinInput = (value: string, onChange: (val: string) => void, label?: string) => (
     <div className="space-y-3">
       {label && (
         <label className="block text-sm font-medium text-gray-600">{label}</label>
       )}
-      <div className="flex justify-center gap-2">
-        {Array.from({ length: maxLength }).map((_, i) => (
-          <input
-            key={i}
-            ref={el => { inputRefs.current[i] = el; }}
-            type="password"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={1}
-            value={value[i] || ''}
-            onChange={e => handleDigitInput(i, e.target.value, value, onChange)}
-            onKeyDown={e => handleKeyDown(i, e, value)}
-            className={`pin-input ${value[i] ? 'border-pink-400 bg-pink-50' : ''}`}
-            disabled={isSubmitting}
-          />
-        ))}
-      </div>
+      <input
+        ref={inputRef}
+        type="password"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        minLength={4}
+        maxLength={6}
+        value={value}
+        onChange={e => handlePinInputChange(e.target.value, onChange)}
+        className={`pin-input-single ${value ? 'border-pink-400 bg-pink-50' : ''}`}
+        placeholder="4-6 digits"
+        disabled={isSubmitting}
+      />
     </div>
   );
   
@@ -211,19 +187,19 @@ const PINModal: React.FC<PINModalProps> = ({ mode, onSuccess, onClose }) => {
         {/* PIN Inputs */}
         <div className="space-y-5">
           {mode === 'change' && step === 'input' && (
-            renderPinInputs(oldPin, setOldPin, 'Current PIN')
+            renderPinInput(oldPin, setOldPin, 'Current PIN')
           )}
           
           {(mode !== 'change' || step === 'input') && (
-            renderPinInputs(
+            renderPinInput(
               pin,
               setPin,
               mode === 'change' ? 'New PIN' : undefined
             )
           )}
-          
+
           {(mode === 'setup' || mode === 'change') && step === 'confirm' && (
-            renderPinInputs(confirmPin, setConfirmPin, 'Confirm PIN')
+            renderPinInput(confirmPin, setConfirmPin, 'Confirm PIN')
           )}
         </div>
         

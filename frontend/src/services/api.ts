@@ -86,6 +86,7 @@ export interface Settings {
   timezone: string;
   notifications_enabled: boolean;
   theme: string;
+  title: string;
   pin_is_set: boolean;
 }
 

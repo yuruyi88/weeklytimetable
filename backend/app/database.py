@@ -55,10 +55,17 @@ def init_db():
                 timezone TEXT DEFAULT 'Pacific/Auckland',
                 notifications_enabled INTEGER DEFAULT 0,
                 theme TEXT DEFAULT 'default',
+                title TEXT DEFAULT 'My Timetable',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Migration: add title column if missing (for existing DBs)
+        try:
+            cursor.execute("SELECT title FROM settings LIMIT 1")
+        except sqlite3.OperationalError:
+            cursor.execute("ALTER TABLE settings ADD COLUMN title TEXT DEFAULT 'My Timetable'")
         
         # PIN attempts tracking for rate limiting
         cursor.execute("""
@@ -205,12 +212,14 @@ def get_settings() -> dict:
                 "timezone": row["timezone"],
                 "notifications_enabled": bool(row["notifications_enabled"]),
                 "theme": row["theme"],
+                "title": row["title"] or "My Timetable",
                 "pin_is_set": row["pin_hash"] is not None
             }
         return {
             "timezone": "Pacific/Auckland",
             "notifications_enabled": False,
             "theme": "default",
+            "title": "My Timetable",
             "pin_is_set": False
         }
 
@@ -232,7 +241,10 @@ def update_settings(settings_data: dict) -> dict:
         if "theme" in settings_data:
             fields.append("theme = ?")
             values.append(settings_data["theme"])
-        
+        if "title" in settings_data:
+            fields.append("title = ?")
+            values.append(settings_data["title"])
+
         if fields:
             fields.append("updated_at = CURRENT_TIMESTAMP")
             cursor.execute(f"""

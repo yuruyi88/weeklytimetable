@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Bell, Palette, Lock, LogOut, Clock } from 'lucide-react';
+import { X, Bell, Palette, Lock, LogOut, Clock, Type } from 'lucide-react';
 import { api } from '../services/api';
 import type { Settings } from '../services/api';
 
@@ -8,24 +8,27 @@ interface SettingsPanelProps {
   onClose: () => void;
   onLogout: () => void;
   onPinChange: () => void;
+  onTitleChange: (title: string) => void;
 }
 
-const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose, onLogout, onPinChange }) => {
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose, onLogout, onPinChange, onTitleChange }) => {
   const [_settings, setSettings] = useState<Settings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  
+  const [titleInput, setTitleInput] = useState('');
+
   useEffect(() => {
     loadSettings();
     checkNotificationPermission();
   }, []);
-  
+
   const loadSettings = async () => {
     try {
       const data = await api.settings.get();
       setSettings(data);
       setNotificationsEnabled(data.notifications_enabled);
+      setTitleInput(data.title || 'My Timetable');
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
@@ -106,6 +109,40 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose, onLogout, onPinC
         </div>
         
         <div className="p-6 space-y-6">
+          {/* Title */}
+          <div className="card">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
+                <Type className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800">Title</h3>
+                <p className="text-xs text-gray-500">Customize your timetable name</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={titleInput}
+                onChange={e => setTitleInput(e.target.value)}
+                maxLength={30}
+                className="input flex-1"
+                placeholder="My Timetable"
+              />
+              <button
+                onClick={async () => {
+                  const trimmed = titleInput.trim() || 'My Timetable';
+                  await saveSettings({ title: trimmed });
+                  onTitleChange(trimmed);
+                }}
+                disabled={isSaving}
+                className="px-4 py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 transition-colors disabled:opacity-50"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+
           {/* PIN Settings */}
           <div className="card">
             <div className="flex items-center gap-3 mb-4">
