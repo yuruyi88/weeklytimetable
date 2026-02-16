@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import bcrypt
 import jwt
 from datetime import datetime, timedelta, timezone
@@ -10,9 +12,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from . import database
 
 # Configuration
-SECRET_KEY = "your-secret-key-change-this-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key-change-this-in-production")
+ALGORITHM = os.environ.get("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 MAX_PIN_ATTEMPTS = 5
 LOCKOUT_MINUTES = 5
 
